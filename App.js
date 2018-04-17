@@ -20,8 +20,9 @@ export default class App extends React.Component {
   state = {
     hasCameraPermission: null,
     isSignIn: null,
-    height: 0,
-    width: 0,
+    height: 300,
+    width: 300,
+    isScanning: false,
 
   }
 
@@ -45,6 +46,26 @@ export default class App extends React.Component {
     this.state.isSignIn = condition;
   }
 
+  drawBarcode() {
+    if (this.state.isScanning) {
+      return (
+        <View>
+          <BarCodeScanner
+           onBarCodeRead={this._handleBarCodeRead}
+           style={{
+             // height: Dimensions.get('window').height,
+             // width: Dimensions.get('window').width,
+             top: 30,
+             left: 40,
+             height: this.state.width,
+             width: this.state.width,
+           }}
+         />
+        </View>
+      );
+    }
+  }
+
   render() {
 
     //Get permission for camera
@@ -66,9 +87,8 @@ export default class App extends React.Component {
               <CardSection>
                 <Button onPress={() => {
                   this.setSignIn(true);
-                  this.state.height = 300;
-                  this.state.width = 300;
                   console.log(this.state.isSignIn);
+                  this.state.isScanning = true;
                   this.forceUpdate();
                   }
                 }>
@@ -77,9 +97,8 @@ export default class App extends React.Component {
 
                 <Button onPress={() => {
                   this.setSignIn(false);
-                  this.state.height = 300;
-                  this.state.width = 300;
                   console.log(this.state.isSignIn);
+                  this.state.isScanning = true;
                   this.forceUpdate();
                   }
                 }>
@@ -89,10 +108,7 @@ export default class App extends React.Component {
 
               <CardSection>
                 <Button onPress={() => {
-                  this.state.height = 0;
-                  this.state.width = 0;
-                  console.log(this.state.height);
-                  console.log(this.state.width);
+                  this.state.isScanning = false;
                   this.forceUpdate();
                   }
                 }>
@@ -101,21 +117,8 @@ export default class App extends React.Component {
               </CardSection>
             </Card>
           </View>
-
-          <BarCodeScanner
-           onBarCodeRead={this._handleBarCodeRead}
-           style={{
-             // height: Dimensions.get('window').height,
-             // width: Dimensions.get('window').width,
-             top: 30,
-             left: 40,
-             height: this.state.width,
-             width: this.state.width,
-           }}
-         />
-
+          { this.drawBarcode() }
         </View>
-
 
       );
     }
