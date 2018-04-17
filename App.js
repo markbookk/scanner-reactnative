@@ -8,14 +8,20 @@ import CardSection from './src/components/CardSection.js';
 import Button from './src/components/Button.js';
 
 import { BarCodeScanner, Permissions } from 'expo';
+import PopupDialog, {
+  DialogTitle,
+  DialogButton,
+  SlideAnimation,
+  ScaleAnimation,
+  FadeAnimation,
+} from 'react-native-popup-dialog';
 
 //Disables the annoying yellow box
 console.disableYellowBox = true;
 
-
+const scaleAnimation = new ScaleAnimation();
 
 export default class App extends React.Component {
-
 
   state = {
     hasCameraPermission: null,
@@ -23,7 +29,7 @@ export default class App extends React.Component {
     height: 300,
     width: 300,
     isScanning: false,
-
+    dialogShow: false,
   }
 
   componentDidMount() {
@@ -36,7 +42,6 @@ export default class App extends React.Component {
       hasCameraPermission: status === 'granted',
     });
   };
-
 
   _handleBarCodeRead = ({ type, data }) => {
       alert(` ${data} `);
@@ -53,8 +58,6 @@ export default class App extends React.Component {
           <BarCodeScanner
            onBarCodeRead={this._handleBarCodeRead}
            style={{
-             // height: Dimensions.get('window').height,
-             // width: Dimensions.get('window').width,
              top: 30,
              left: 40,
              height: this.state.width,
@@ -64,6 +67,38 @@ export default class App extends React.Component {
         </View>
       );
     }
+  }
+
+  showScaleAnimationDialog = () => {
+    this.scaleAnimationDialog.show();
+  }
+
+  drawPopUp() {
+
+        <PopupDialog
+          ref={(popupDialog) => {
+            this.scaleAnimationDialog = popupDialog;
+          }}
+          dialogAnimation={scaleAnimation}
+          dialogTitle={<DialogTitle title="Popup Dialog - Scale Animation" />}
+          actions={[
+            <DialogButton
+              text="DISMISS"
+              onPress={() => {
+                this.scaleAnimationDialog.dismiss();
+              }}
+              key="button-1"
+            />,
+          ]}
+        >
+          <View style={styles.dialogContentView}>
+            <Button
+              onPress={this.showFadeAnimationDialog}
+            >
+            Show Dialog - Default Animation
+            </Button>
+          </View>
+        </PopupDialog>
   }
 
   render() {
@@ -110,6 +145,8 @@ export default class App extends React.Component {
                 <Button onPress={() => {
                   this.state.isScanning = false;
                   this.forceUpdate();
+                  this.showScaleAnimationDialog;
+                  this.drawPopUp();
                   }
                 }>
                   Manual Entry
@@ -143,4 +180,30 @@ const styles = StyleSheet.create({
       height: 100,
       paddingTop: 80,
     },
+
+
+  dialogContentView: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navigationBar: {
+    borderBottomColor: '#b5b5b5',
+    borderBottomWidth: 0.5,
+    backgroundColor: '#ffffff',
+  },
+  navigationTitle: {
+    padding: 10,
+  },
+  navigationButton: {
+    padding: 10,
+  },
+  navigationLeftButton: {
+    paddingLeft: 20,
+    paddingRight: 40,
+  },
+  navigator: {
+    flex: 1,
+    // backgroundColor: '#000000',
+  },
 });
