@@ -30,10 +30,25 @@ export default class App extends React.Component {
     dialogShow: false,
     signOption: null,
     scanCode: null,
+    latitude: null,
+    longitude: null,
+    error: null,
   }
 
   componentDidMount() {
     this._requestCameraPermission();
+    //GPS
+    navigator.geolocation.getCurrentPosition(
+     (position) => {
+       this.setState({
+         latitude: position.coords.latitude,
+         longitude: position.coords.longitude,
+         error: null,
+       });
+     },
+     (error) => this.setState({ error: error.message }),
+     { enableHighAccuracy: true, timeout: 20000, maximumAge: 20000 },
+);
   }
 
   _requestCameraPermission = async () => {
@@ -44,6 +59,8 @@ export default class App extends React.Component {
   };
 
   _handleBarCodeRead = ({ type, data }) => {
+      this.state.scanCode = data;
+      this.sendPostAPI();
       alert(` ${data} `);
   }
 
@@ -70,17 +87,21 @@ export default class App extends React.Component {
   }
 
   sendPostAPI() {
-    console.log("Working!");
     var isSignIn = null;
     if (this.state.signOption == "Sign In") {
       isSignIn = true;
     }else if (this.state.signOption == "Sign Out") {
       isSignIn = false;
     }
+    console.log("==========");
     console.log(isSignIn)
+    console.log(this.state.latitude);
+    console.log(this.state.longitude);
+    console.log(this.state.scanCode);
+    console.log("==========");
     if (!(this.state.scanCode == null))
     if (!(isSignIn == null)) {
-      fetch('http://localhost:3000/api/scanner', {
+      fetch('http://192.168.0.10:3000/api/scanner', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -91,12 +112,15 @@ export default class App extends React.Component {
           isCheckIn: isSignIn,
           project: 'Test',
           scanCode: this.state.scanCode,
-          Latitude: '18.46285431541079',
-          Longitude: '-66.08478619907575',
+          Latitude: this.state.latitude,
+          Longitude: this.state.longitude,
           isManual: false,
-        }),
+        })
+      }).catch((error)=>{
+        console.log("Api call error");
+        alert(error.message);
       });
-      this.textInput.clear();
+      // this.state.scanCode = "";
       console.log("restarted!: " + this.state.scanCode);
     }
   }
@@ -129,6 +153,7 @@ export default class App extends React.Component {
                 <Button onPress={() => {
                   this.setSignIn(true);
                   console.log(this.state.isSignIn);
+                  this.state.signOption = "Sign In";
                   this.state.isScanning = true;
                   this.forceUpdate();
                   }
@@ -139,6 +164,7 @@ export default class App extends React.Component {
                 <Button onPress={() => {
                   this.setSignIn(false);
                   console.log(this.state.isSignIn);
+                  this.state.signOption = "Sign Out";
                   this.state.isScanning = true;
                   this.forceUpdate();
                   }
