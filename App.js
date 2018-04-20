@@ -1,11 +1,8 @@
 'use strict';
 
 import React, { Component } from 'react'
-import { Text, View, Linking, TextInput, StyleSheet, Dimensions } from 'react-native';
-import Header from './src/components/header.js';
-import Card from './src/components/Card.js';
-import CardSection from './src/components/CardSection.js';
-import Button from './src/components/Button.js';
+import { Text, View, Linking, TextInput, StyleSheet, Dimensions, Picker } from 'react-native';
+import { Header, Card, CardSection, Button, Input } from './src/components/common';
 
 import { BarCodeScanner, Permissions } from 'expo';
 import PopupDialog, {
@@ -15,6 +12,7 @@ import PopupDialog, {
   ScaleAnimation,
   FadeAnimation,
 } from 'react-native-popup-dialog';
+import { Dropdown } from 'react-native-material-dropdown';
 
 //Disables the annoying yellow box
 console.disableYellowBox = true;
@@ -30,6 +28,8 @@ export default class App extends React.Component {
     width: 300,
     isScanning: false,
     dialogShow: false,
+    signOption: null,
+    scanCode: null,
   }
 
   componentDidMount() {
@@ -69,39 +69,45 @@ export default class App extends React.Component {
     }
   }
 
-  showScaleAnimationDialog = () => {
-    this.scaleAnimationDialog.show();
-  }
-
-  drawPopUp() {
-
-        <PopupDialog
-          ref={(popupDialog) => {
-            this.scaleAnimationDialog = popupDialog;
-          }}
-          dialogAnimation={scaleAnimation}
-          dialogTitle={<DialogTitle title="Popup Dialog - Scale Animation" />}
-          actions={[
-            <DialogButton
-              text="DISMISS"
-              onPress={() => {
-                this.scaleAnimationDialog.dismiss();
-              }}
-              key="button-1"
-            />,
-          ]}
-        >
-          <View style={styles.dialogContentView}>
-            <Button
-              onPress={this.showFadeAnimationDialog}
-            >
-            Show Dialog - Default Animation
-            </Button>
-          </View>
-        </PopupDialog>
+  sendPostAPI() {
+    console.log("Working!");
+    var isSignIn = null;
+    if (this.state.signOption == "Sign In") {
+      isSignIn = true;
+    }else if (this.state.signOption == "Sign Out") {
+      isSignIn = false;
+    }
+    console.log(isSignIn)
+    if (!(this.state.scanCode == null))
+    if (!(isSignIn == null)) {
+      fetch('http://localhost:3000/api/scanner', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          timeScanned: '00-00-00',
+          isCheckIn: isSignIn,
+          project: 'Test',
+          scanCode: this.state.scanCode,
+          Latitude: '18.46285431541079',
+          Longitude: '-66.08478619907575',
+          isManual: false,
+        }),
+      });
+      this.textInput.clear();
+      console.log("restarted!: " + this.state.scanCode);
+    }
   }
 
   render() {
+
+    let data = [{
+      value: 'Sign In',
+    }, {
+      value: 'Sign Out',
+    }];
 
     //Get permission for camera
     if (this.state.hasCameraPermission === null) {
@@ -145,8 +151,7 @@ export default class App extends React.Component {
                 <Button onPress={() => {
                   this.state.isScanning = false;
                   this.forceUpdate();
-                  this.showScaleAnimationDialog;
-                  this.drawPopUp();
+                  this.popupDialog.show();
                   }
                 }>
                   Manual Entry
@@ -154,6 +159,49 @@ export default class App extends React.Component {
               </CardSection>
             </Card>
           </View>
+
+          <PopupDialog
+              ref={(popupDialog) => { this.popupDialog = popupDialog; }}
+            >
+              <View>
+
+              <Card>
+                <CardSection>
+                  <Input
+                  inputRef={this.textInput}
+                  placeholder="Nombre Apellido"
+                  label="Name"
+                  value={this.state.scanCode}
+                  onChangeText={scanCode => this.setState({ scanCode })}
+                  />
+                </CardSection>
+
+                <View style={{ width: 96, marginLeft: 125 }}>
+                  <Dropdown
+                          label='Sign In/Out'
+                          data={data}
+                          onChangeText={signOption => this.setState({ signOption })}
+                  />
+                  { console.log(this.state.signOption)}
+                </View>
+
+                <Text style={styles.errorTextStyle}>
+                  {this.state.error}
+                </Text>
+
+                <CardSection>
+                  <Button onPress={() => {
+                    this.sendPostAPI();
+                    }
+                  }>
+                    Submit
+                  </Button>
+                </CardSection>
+              </Card>
+
+              </View>
+            </PopupDialog>
+
           { this.drawBarcode() }
         </View>
 

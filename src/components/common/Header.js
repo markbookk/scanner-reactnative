@@ -20,7 +20,7 @@ const styles = {
     justifyContent: 'center', //Up and down
     alignItems: 'center', //Left and right
     height: 60,
-    paddingTop: 30,
+    paddingTop: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -33,4 +33,4 @@ const styles = {
 };
 
 // Render it to the device
-export default Header;
+export {Header};

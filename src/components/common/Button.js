@@ -39,4 +39,4 @@ const styles = {
 }
 
 // Render it to the device
-export default Button;
+export {Button};

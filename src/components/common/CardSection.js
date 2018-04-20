@@ -28,4 +28,4 @@ const styles = {
 }
 
 // Render it to the device
-export default CardSection;
+export {CardSection};

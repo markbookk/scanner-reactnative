@@ -32,4 +32,4 @@ const style = {
 }
 
 // Render it to the device
-export default Card;
+export {Card};
