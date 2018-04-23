@@ -1,3 +1,13 @@
+/*
+TODO:
+- centralize barcode window
+- restart 'name' variable once you press Submit button
+- add sound
+- add delay to barcode
+*/
+
+
+
 'use strict';
 
 import React, { Component } from 'react'
@@ -87,18 +97,20 @@ export default class App extends React.Component {
   }
 
   sendPostAPI() {
+    var date = new Date();
+    var varISO = date.toISOString();
     var isSignIn = null;
     if (this.state.signOption == "Sign In") {
       isSignIn = true;
     }else if (this.state.signOption == "Sign Out") {
       isSignIn = false;
     }
-    console.log("==========");
-    console.log(isSignIn)
-    console.log(this.state.latitude);
-    console.log(this.state.longitude);
+    // console.log("==========");
+    // console.log(isSignIn)
+    // console.log(this.state.latitude);
+    // console.log(this.state.longitude);
     console.log(this.state.scanCode);
-    console.log("==========");
+    // console.log("==========");
     if (!(this.state.scanCode == null))
     if (!(isSignIn == null)) {
       fetch('http://192.168.0.10:3000/api/scanner', {
@@ -108,7 +120,7 @@ export default class App extends React.Component {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          timeScanned: '00-00-00',
+          timeScanned: new Date(),
           isCheckIn: isSignIn,
           project: 'Test',
           scanCode: this.state.scanCode,
@@ -121,7 +133,7 @@ export default class App extends React.Component {
         alert(error.message);
       });
       // this.state.scanCode = "";
-      console.log("restarted!: " + this.state.scanCode);
+      // console.log("restarted!: " + this.state.scanCode);
     }
   }
 
@@ -152,7 +164,7 @@ export default class App extends React.Component {
               <CardSection>
                 <Button onPress={() => {
                   this.setSignIn(true);
-                  console.log(this.state.isSignIn);
+                  // console.log(this.state.isSignIn);
                   this.state.signOption = "Sign In";
                   this.state.isScanning = true;
                   this.forceUpdate();
@@ -163,7 +175,7 @@ export default class App extends React.Component {
 
                 <Button onPress={() => {
                   this.setSignIn(false);
-                  console.log(this.state.isSignIn);
+                  // console.log(this.state.isSignIn);
                   this.state.signOption = "Sign Out";
                   this.state.isScanning = true;
                   this.forceUpdate();
@@ -208,7 +220,7 @@ export default class App extends React.Component {
                           data={data}
                           onChangeText={signOption => this.setState({ signOption })}
                   />
-                  { console.log(this.state.signOption)}
+                  // { console.log(this.state.signOption)}
                 </View>
 
                 <Text style={styles.errorTextStyle}>
